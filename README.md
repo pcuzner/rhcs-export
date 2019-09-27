@@ -33,10 +33,10 @@ fsid: 6d210768-d391-409b-b585-56d54554da8c
 mgr: 10.90.90.161
 mons: [10.90.90.153, 10.90.90.160, 10.90.90.161]                                             
 rgws: ['10.90.90.153:8080']
-secret: AQCrGYBdRH3XLRAA+LojQqElDRXHL6FIb5QvXg== 
+secret: AQCrGYBdRH3XLRAA+LojQqElDRXHL6FIb5QvXg==                                             
+version: 14.2.2
 ```
   
 ## TODO
-* add ceph version
 * support yaml/bash output formats (yaml only currently)
 * complete packaging
