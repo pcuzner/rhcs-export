@@ -40,3 +40,5 @@ version: 14.2.2
 ## TODO
 * support yaml/bash output formats (yaml only currently)
 * complete packaging
+* Add standby managers
+* block if prometheus is not enabled
