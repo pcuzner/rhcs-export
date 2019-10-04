@@ -20,12 +20,13 @@ optional arguments:
   -c CONFDIR, --confdir CONFDIR
                         ceph configuration directory (default: /etc/ceph)
   -u USER, --user USER  Ceph user to use for the keyring (default: admin)
-  -f {yaml}, --format {yaml}
+  -f {yaml,json}, --format {yaml,json}
                         output file format (default: yaml)
 ```
 
 ### Example output
-Here's an example of the file the tool creates
+Here's output examples for yaml and json.
+#### yaml  
 ```
 ---
 dashboard: http://rhcs4-2.storage.lab:8443/
@@ -36,9 +37,27 @@ rgws: ['10.90.90.153:8080']
 secret: AQCrGYBdRH3XLRAA+LojQqElDRXHL6FIb5QvXg==                                             
 version: 14.2.2
 ```
-  
+#### json
+```
+{
+    "dashboard": "http://rhcs4-2.storage.lab:8443/",
+    "fsid": "6d210768-d391-409b-b585-56d54554da8c",
+    "mgr": "10.90.90.161",
+    "mons": [
+        "10.90.90.153",
+        "10.90.90.160",
+        "10.90.90.161"
+    ],
+    "rgws": [
+        "10.90.90.153:8080"
+    ],
+    "secret": "AQCrGYBdRH3XLRAA+LojQqElDRXHL6FIb5QvXg==",
+    "version": "14.2.2"
+}
+```
+
 ## TODO
-* support yaml/bash output formats (yaml only currently)
+* add support bash output formats
 * complete packaging
 * Add standby managers
 * block if prometheus is not enabled

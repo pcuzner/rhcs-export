@@ -19,7 +19,7 @@ class Defaults(object):
 
 
 class Choices(object):
-    output_format = ['yaml']
+    output_format = ['yaml', 'json']
 
 
 def ready():
@@ -91,9 +91,15 @@ def _dump_yaml(settings):
     output = yaml.safe_dump(settings, indent=2, explicit_start=2)
     write_file(output)
 
+def _dump_json(settings):
+    output = json.dumps(settings, indent=4, sort_keys=True)
+    write_file(output)
+
 def dump(settings):
     if args.format == 'yaml':
         _dump_yaml(settings)
+    elif args.format == 'json':
+        _dump_json(settings)
     else:
         abort("Unknown output format requested")    
 
