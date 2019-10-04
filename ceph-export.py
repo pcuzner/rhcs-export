@@ -4,6 +4,7 @@ import sys
 import yaml
 import json
 import shutil
+import socket
 import argparse
 import subprocess
 import configparser
@@ -21,6 +22,15 @@ class Defaults(object):
 class Choices(object):
     output_format = ['yaml', 'json']
 
+
+def get_IP(name):
+    """try and resolve a hostname, if resolution fails, return the name"""
+    try:
+        ip_address = socket.gethostbyname(name)
+    except socket.gaierror:
+        return name
+    else:
+        return ip_address
 
 def ready():
     if not shutil.which('ceph'):
@@ -139,6 +149,8 @@ def main():
         abort("unable to fetch ceph version!")
 
     ceph_state = json.loads(ceph_out)
+    if 'prometheus' not in ceph_state['mgrmap']['modules']:
+        abort("Local ceph cluster must have prometheus module enabled")
 
     settings = dict()
 
@@ -147,10 +159,20 @@ def main():
     settings['secret'] = keyring
     settings['mons'] = [mon['public_addr'].split(':')[0] for mon in ceph_state['monmap']['mons']]
     settings['mgr'] = ceph_state['mgrmap']['active_addr'].split(':')[0]
+
+    # ceph stores the standbys by name not ip, so we'll try and convert them
+    # to IP for consistency for now. 
+    # TODO I think all addresses should be by name preferably, but don't want mixed
+    # addresses 
+    settings['mgr_standby'] = [ get_IP(stby['name']) for stby in ceph_state['mgrmap']['standbys']]
    
     dashboard_url = ceph_state['mgrmap']['services'].get('dashboard', None)
     if dashboard_url:
         settings['dashboard'] = dashboard_url
+
+    prometheus_url = ceph_state['mgrmap']['services'].get('prometheus', None)
+    if prometheus_url:
+        settings['prometheus'] = prometheus_url
    
     if ceph_state.get('servicemap', None):
         if ceph_state['servicemap']['services'].get('rgw', None):

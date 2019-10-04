@@ -29,12 +29,14 @@ Here's output examples for yaml and json.
 #### yaml  
 ```
 ---
-dashboard: http://rhcs4-2.storage.lab:8443/
-fsid: 6d210768-d391-409b-b585-56d54554da8c
+dashboard: http://rhcs4-2.storage.lab:8443/                                    
+fsid: 6d210768-d391-409b-b585-56d54554da8c                                     
 mgr: 10.90.90.161
-mons: [10.90.90.153, 10.90.90.160, 10.90.90.161]                                             
+mgr_standby: [10.90.90.160, 10.90.90.153]                                      
+mons: [10.90.90.153, 10.90.90.160, 10.90.90.161]                               
+prometheus: http://rhcs4-2.storage.lab:9283/                                   
 rgws: ['10.90.90.153:8080']
-secret: AQCrGYBdRH3XLRAA+LojQqElDRXHL6FIb5QvXg==                                             
+secret: AQCrGYBdRH3XLRAA+LojQqElDRXHL6FIb5QvXg==                               
 version: 14.2.2
 ```
 #### json
@@ -43,11 +45,16 @@ version: 14.2.2
     "dashboard": "http://rhcs4-2.storage.lab:8443/",
     "fsid": "6d210768-d391-409b-b585-56d54554da8c",
     "mgr": "10.90.90.161",
+    "mgr_standby": [
+        "10.90.90.160",
+        "10.90.90.153"
+    ],
     "mons": [
         "10.90.90.153",
         "10.90.90.160",
         "10.90.90.161"
     ],
+    "prometheus": "http://rhcs4-2.storage.lab:9283/",
     "rgws": [
         "10.90.90.153:8080"
     ],
@@ -59,5 +66,3 @@ version: 14.2.2
 ## TODO
 * add support bash output formats
 * complete packaging
-* Add standby managers
-* block if prometheus is not enabled
