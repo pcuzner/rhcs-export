@@ -61,7 +61,7 @@ def find_keyring():
     if not conf or not conf.sections():
         # conf empty or can't read it!
         return None
-    if 'client.admin' not in conf.sections():
+    if 'client.' + args.user not in conf.sections():
         # no client.admin section
         return None
     if 'key' not in conf['client.' + args.user].keys():
@@ -92,7 +92,7 @@ def write_file(content):
             f.write(content)
     except:
         print("Unexpected problem writing the file, dumping config here")
-        print(output)
+        print(content)
     else:
         print("Config written to {}".format(os.path.expanduser(args.output)))
 
