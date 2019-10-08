@@ -17,6 +17,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// keyringFile is the filename pattern for a keyring
 const keyringFile = "ceph.client.%s.keyring"
 
 var defaults = map[string]string{
@@ -46,7 +47,7 @@ type cephMetaData struct {
 	Version       string   `json:"version" yaml:"version"`
 }
 
-func dirExists(filePath string) bool {
+func isDir(filePath string) bool {
 	info, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
 		return false
@@ -54,7 +55,7 @@ func dirExists(filePath string) bool {
 	return info.IsDir()
 }
 
-func fileExists(filePath string) bool {
+func isFile(filePath string) bool {
 	info, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
 		return false
@@ -63,7 +64,7 @@ func fileExists(filePath string) bool {
 }
 
 // look for string in a given slice
-func stringinSlice(item string, iterable []string) bool {
+func hasString(item string, iterable []string) bool {
 	for _, value := range iterable {
 		if item == value {
 			return true
@@ -78,15 +79,15 @@ func ready(settings *runtimeSettings) (bool, error) {
 	keyring := fmt.Sprintf(keyringFile, settings.userName)
 	keyringStore := settings.confDir + "/keyring-store/keyring"
 
-	if !dirExists(settings.confDir) {
+	if !isDir(settings.confDir) {
 		return false, errors.New("Directory '" + settings.confDir + "' not found")
 	}
 
-	if !fileExists(settings.confDir + "/ceph.conf") {
+	if !isFile(settings.confDir + "/ceph.conf") {
 		return false, errors.New("ceph configuration file missing from " + settings.confDir)
 	}
 
-	if !fileExists(settings.confDir+"/"+keyring) && !fileExists(keyringStore) {
+	if !isFile(settings.confDir+"/"+keyring) && !isFile(keyringStore) {
 		return false, errors.New("missing keyring/keyring store")
 	}
 
@@ -126,9 +127,9 @@ func fetchKeyring(userName string, confDir string) string {
 
 	keyFilePath := confDir + "/" + fmt.Sprintf(keyringFile, userName)
 	keyStore := confDir + "/keyring-store/keyring"
-	if fileExists(keyFilePath) {
+	if isFile(keyFilePath) {
 		keyFile = keyFilePath
-	} else if fileExists(keyStore) {
+	} else if isFile(keyStore) {
 		keyFile = keyStore
 	}
 
@@ -339,7 +340,7 @@ func main() {
 
 	}
 
-	if !stringinSlice("prometheus", enabledModules) {
+	if !hasString("prometheus", enabledModules) {
 		abort("Prometheus module must be enabled, prior to configuration export")
 	}
 	fmt.Println("Active mgr module check...PASSED")
