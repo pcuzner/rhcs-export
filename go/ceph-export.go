@@ -1,5 +1,12 @@
 package main
 
+//
+// export the ceph configuration
+// code arbitrarily navigates through ceph -s json, instead of fully declaring
+// a struct to define the whole of ceph -s output. This could be done later if
+// desired
+//
+
 import (
 	"encoding/json"
 	"errors"
@@ -44,6 +51,7 @@ type cephMetaData struct {
 	Mgrstandby    []string `json:"mgr_standby" yaml:"mgr_standby"`
 	Mons          []string `json:"mons" yaml:"mons"`
 	PrometheusURL string   `json:"prometheus_url" yaml:"prometheus_url"`
+	Rgws          []string `json:"rgws" yaml:"rgws"`
 	Version       string   `json:"version" yaml:"version"`
 }
 
@@ -115,9 +123,6 @@ func sendCommand(commandString string) (string, error) {
 		return "", errors.New("error running command")
 	}
 	return string(out), nil
-}
-func getIniSetting(section string, key string) string {
-	return ""
 }
 
 // find the keyring for the given user and return its key
@@ -228,7 +233,7 @@ func main() {
 	var enabledModules []string
 	var exportData cephMetaData
 
-	// Defaults sets up the defaults for the command line args
+	// Defaults for the command line args
 	outFile := flag.String("output", defaults["outFile"], "output file name")
 	confDir := flag.String("confdir", defaults["confDir"], "Ceph configuration directory")
 	fileFormat := flag.String("format", defaults["fileFormat"], "output file format")
@@ -336,6 +341,28 @@ func main() {
 					}
 				}
 			}
+		case "servicemap":
+			svcMap := k.(map[string]interface{})
+			svcs := svcMap["services"].(map[string]interface{})
+
+			if rgw, ok := svcs["rgw"]; ok {
+				rgwDaemons := rgw.(map[string]interface{})["daemons"]
+				for rgwKey, rgwData := range rgwDaemons.(map[string]interface{}) {
+					if rgwKey == "summary" {
+						continue
+					}
+					rgwMeta := rgwData.(map[string]interface{})["metadata"]
+					frontEnd := rgwMeta.(map[string]interface{})["frontend_config#0"].(string)
+					fendSettings := strings.Split(frontEnd, " ")
+					for _, item := range fendSettings {
+						parms := strings.Split(item, "=")
+						if strings.HasSuffix(parms[0], "port") {
+							exportData.Rgws = append(exportData.Rgws, parms[1])
+						}
+					}
+				}
+			}
+
 		}
 
 	}
